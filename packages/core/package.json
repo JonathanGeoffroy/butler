@@ -1,0 +1,24 @@
+{
+  "name": "@butler/core",
+  "version": "0.0.0",
+  "description": "Core of butler system : handle MSW management and other core features.",
+  "author": "Jonathan Geoffroy <geoffroy.jonathan@gmail.com>",
+  "homepage": "",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "compile": "tsc",
+    "start": "tsc -w",
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "dependencies": {
+    "typescript": "^4.1.3"
+  }
+}

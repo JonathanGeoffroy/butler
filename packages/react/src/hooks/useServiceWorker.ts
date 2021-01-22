@@ -1,38 +1,16 @@
-import { MockedRequest, setupWorker } from 'msw'
 import { useEffect, useState } from 'react'
+import setupWorker, { Worker } from '../core'
+import Handler from '../core/Handler'
 
-export const worker = setupWorker()
+export const worker: Worker = setupWorker()
 
-export interface Request extends MockedRequest {
-  mocked: boolean
-}
-
-export default function useServiceWorker(): Request[] {
-  const [requests, setRequests] = useState<Request[]>([])
+export default function useServiceWorker(): Handler[] {
+  const [requests, setRequests] = useState<Handler[]>([])
 
   useEffect(() => {
-    worker.on('request:match', (req) => {
-      setRequests((requests) => [
-        ...requests,
-        {
-          ...req,
-          mocked: true
-        }
-      ])
-    })
-
-    worker.on('request:unhandled', (req) => {
-      setRequests((requests) => [
-        ...requests,
-        {
-          ...req,
-          mocked: false
-        }
-      ])
-    })
-
+    worker.onChange((handlers) => setRequests([...handlers]))
     worker.start()
-    return () => worker && worker.stop()
+    return worker.stop
   }, [])
 
   return requests

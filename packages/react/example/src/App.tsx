@@ -1,10 +1,9 @@
 import React from 'react'
 
-import { ExampleComponent } from '@butler/react'
-import '@butler/react/dist/index.css'
+import { Butler } from '@butler/react'
 
 const App = () => {
-  return <ExampleComponent text="Create React Library Example 😄" />
+  return <Butler />
 }
 
 export default App

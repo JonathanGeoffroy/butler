@@ -3,10 +3,10 @@ import {
   RequestHandler,
   ResponseComposition,
   ResponseResolver,
-  rest,
   RestContext,
   RESTMethods
 } from 'msw'
+import { findResolver } from './utils/RESTResolver'
 
 const DEFAULT_RESOLVER = (
   _: any,
@@ -24,29 +24,12 @@ export default class Handler {
   wrapper: RequestHandler | null
   requests: Request[]
 
-  constructor(private _method: RESTMethods, private _url: string) {
+  constructor(
+    private onChange: () => void,
+    private _method: RESTMethods,
+    private _url: string
+  ) {
     this.requests = []
-  }
-
-  private static findResolver(method: RESTMethods): any {
-    switch (method) {
-      case RESTMethods.DELETE:
-        return rest.delete
-      case RESTMethods.GET:
-        return rest.get
-      case RESTMethods.HEAD:
-        return rest.head
-      case RESTMethods.OPTIONS:
-        return rest.options
-      case RESTMethods.PATCH:
-        return rest.patch
-      case RESTMethods.POST:
-        return rest.post
-      case RESTMethods.PUT:
-        return rest.put
-      default:
-        throw Error(`No handler found for method: ${method}`)
-    }
   }
 
   get isActive() {
@@ -66,10 +49,12 @@ export default class Handler {
       return
     }
 
-    this.wrapper = Handler.findResolver(this._method)(
+    this.wrapper = findResolver(this._method)(
       this._url,
       resolver || DEFAULT_RESOLVER
     )
+
+    this.onChange()
   }
 
   disable() {
@@ -78,9 +63,18 @@ export default class Handler {
     }
 
     this.wrapper = null
+    this.onChange()
   }
 
-  canHandle(req: MockedRequest): boolean {
+  onRequestReceived(request: Request) {
+    if (this.canHandle(request)) {
+      this.requests.push(request)
+      return true
+    }
+    return false
+  }
+
+  private canHandle(req: MockedRequest): boolean {
     return this._method.toString() === req.method && this._url === req.url.href
   }
 }

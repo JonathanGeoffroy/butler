@@ -16,8 +16,6 @@ export interface Worker {
   worker: SetupWorkerApi
   start: (options?: StartOptions) => void
   stop: () => void
-  enable: (handler: Handler) => void
-  disable: (handler: Handler) => void
   onChange: (lister: RequestListener) => void
 }
 
@@ -30,7 +28,7 @@ export default function setupWorker(
 
   const listeners: RequestListener[] = []
 
-  const onChange = (listener: RequestListener) => {
+  const subsribe = (listener: RequestListener) => {
     listeners.push(listener)
 
     return () => {
@@ -41,64 +39,51 @@ export default function setupWorker(
     }
   }
 
-  const onRequest = () => {
+  const onChange = () => {
     for (const listener of listeners) {
       listener(handlers)
     }
   }
 
-  const enable = (handler: Handler) => {
-    handler.enable()
-    if (handler.wrapper) {
-      worker.use(...[handler.wrapper])
-    }
+  const onHandlerChange = () => {
+    // @ts-ignore
+    const enabledHandlers: RequestHandlersList = handlers
+      .filter((h) => !!h.wrapper)
+      .map((h) => h.wrapper)
 
-    onRequest()
+    worker.resetHandlers(...enabledHandlers)
+
+    onChange()
   }
 
-  const disable = (handler: Handler) => {
-    handler.disable()
-    if (!handler.wrapper) {
-      // @ts-ignore
-      const enabledHandlers: RequestHandlersList = handlers
-        .filter((h) => !!h.wrapper)
-        .map((h) => h.wrapper)
+  const handleRequest = (req: Request) => {
+    const someoneCatchReq = !!handlers.find((h) => h.onRequestReceived(req))
 
-      worker.resetHandlers(...enabledHandlers)
-    }
-    onRequest()
-  }
-
-  const findMatchingHandler = (req: MockedRequest): Handler | null => {
-    return handlers.find((handler) => handler.canHandle(req)) || null
-  }
-
-  worker.on('request:match', (req: MockedRequest) => {
-    const handler = findMatchingHandler(req)
-    if (handler) {
-      handler.requests.push({ ...req, mocked: true })
-    }
-    debugger
-    onRequest()
-  })
-
-  worker.on('request:unhandled', (req) => {
-    let handler = findMatchingHandler(req)
-    if (!handler) {
-      handler = new Handler(RESTMethods[req.method], req.url.href)
+    if (!someoneCatchReq) {
+      const handler = new Handler(
+        onHandlerChange,
+        RESTMethods[req.method],
+        req.url.href
+      )
       handlers.push(handler)
+      handler.onRequestReceived(req)
     }
 
-    handler.requests.push({ ...req, mocked: false })
-    onRequest()
-  })
+    onChange()
+  }
+
+  worker.on('request:match', (req: MockedRequest) =>
+    handleRequest({ ...req, mocked: true })
+  )
+
+  worker.on('request:unhandled', (req) =>
+    handleRequest({ ...req, mocked: false })
+  )
 
   return {
     start: () => worker.start(),
     stop: () => worker.stop(),
-    enable,
-    disable,
-    onChange,
+    onChange: subsribe,
     worker
   }
 }

@@ -1,6 +1,5 @@
 import React from 'react'
 import Handler from '../../../core/Handler'
-import { worker } from '../../../hooks/useServiceWorker'
 
 interface Props {
   handlers: Handler[]
@@ -8,7 +7,7 @@ interface Props {
 
 const RequestList: React.FC<Props> = ({ handlers }) => {
   const onHandleChange = (handler: Handler) => {
-    handler.isActive ? worker.disable(handler) : worker.enable(handler)
+    handler.isActive ? handler.disable() : handler.enable()
   }
 
   return (

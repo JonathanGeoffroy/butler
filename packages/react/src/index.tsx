@@ -1,6 +1,9 @@
 import React from 'react'
 import useServiceWorker from './hooks/useServiceWorker'
-import RequestList from './components/Handler/List/List'
+import HandlerList from './components/Handler/List'
+
+// @ts-ignore
+import styles from './styles.module.scss'
 
 export const Butler = () => {
   const handlers = useServiceWorker()
@@ -11,11 +14,11 @@ export const Butler = () => {
     )
   }
   return (
-    <div>
+    <div className={styles.butler}>
       <div>
         <button onClick={runTest}>Test</button>
       </div>
-      <RequestList handlers={handlers} />
+      <HandlerList handlers={handlers} onSelectHandler={() => {}} />
     </div>
   )
 }

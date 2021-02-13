@@ -8,21 +8,27 @@
   $background: rgb(40, 40, 40);
 
   border-collapse: collapse;
-  font-size: 0.75em;
-  width: 100%;
+  flex-shrink: 1;
   color: $color;
   background: $background;
 
   td,
   th {
     border: 1px solid darken($background, 10);
-    padding: 0.25em 1em;
+    padding: 0.5em 1em;
     text-align: left;
   }
 
   tbody {
     tr:nth-child(2n + 1) {
       background-color: lighten($color: $background, $amount: 10);
+    }
+
+    tr.selected {
+      background-color: #5800b0;
+      .url {
+        font-weight: bold;
+      }
     }
   }
 

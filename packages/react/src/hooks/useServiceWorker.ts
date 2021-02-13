@@ -1,17 +1,26 @@
 import { useEffect, useState } from 'react'
-import setupWorker, { Worker } from '../core'
-import Handler from '../core/Handler'
+import setupWorker, { subscribe, Worker, Handler } from '@butler/core'
 
 export const worker: Worker = setupWorker()
 
-export default function useServiceWorker(): Handler[] {
-  const [requests, setRequests] = useState<Handler[]>([])
+export interface ServiceWorker {
+  handlers: Handler[]
+  enableHandler: (handler: Handler) => void
+  disableHandler: (handler: Handler) => void
+}
+
+export default function useServiceWorker(): ServiceWorker {
+  const [handlers, setHandlers] = useState<Handler[]>([])
 
   useEffect(() => {
-    worker.onChange((handlers) => setRequests([...handlers]))
+    subscribe((handlers) => setHandlers([...handlers]))
     worker.start()
     return worker.stop
   }, [])
 
-  return requests
+  return {
+    handlers,
+    enableHandler: worker.enable,
+    disableHandler: worker.disable
+  }
 }

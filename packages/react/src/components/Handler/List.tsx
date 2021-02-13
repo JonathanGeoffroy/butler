@@ -1,6 +1,6 @@
 import React from 'react'
 import { RESTMethods } from 'msw'
-import Handler from '../../core/Handler'
+import { Handler } from '@butler/core'
 
 // @ts-ignore
 import styles from './List.scss'
@@ -27,14 +27,17 @@ function toStyle(method: RESTMethods) {
 }
 interface Props {
   handlers: Handler[]
+  selectedHandler: Handler | null
   onSelectHandler: (handler: Handler) => void
+  onEnableChange: (handler: Handler, enabled: boolean) => void
 }
 
-export default function List({ handlers, onSelectHandler }: Props) {
-  const onHandleChange = (handler: Handler) => {
-    handler.isActive ? handler.disable() : handler.enable()
-  }
-
+export default function List({
+  handlers,
+  selectedHandler,
+  onSelectHandler,
+  onEnableChange
+}: Props) {
   return (
     <table className={styles.handlerList}>
       <thead>
@@ -47,12 +50,16 @@ export default function List({ handlers, onSelectHandler }: Props) {
       </thead>
       <tbody>
         {handlers.map((handler) => (
-          <tr key={handler.url} onClick={() => onSelectHandler(handler)}>
+          <tr
+            key={handler.url}
+            className={handler === selectedHandler ? styles.selected : ''}
+            onClick={() => onSelectHandler(handler)}
+          >
             <td className={styles.centered}>
               <input
                 type='checkbox'
                 checked={handler.isActive}
-                onChange={() => onHandleChange(handler)}
+                onChange={() => onEnableChange(handler, !handler.isActive)}
               />
             </td>
             <td className={styles.centered}>

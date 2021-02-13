@@ -1,5 +1,12 @@
 /* add css module styles here (optional) */
 .butler {
-  font-size: 16px;
+  background-color: #282828;
+  font-size: 12px;
   font-family: Verdana;
+  width: 100%;
+  display: flex;
+
+  @media screen and (max-width: 980px) {
+    flex-direction: column;
+  }
 }

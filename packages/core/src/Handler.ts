@@ -1,3 +1,4 @@
+import { v4 as uuid } from 'uuid'
 import {
   MockedRequest,
   RequestHandler,
@@ -16,6 +17,12 @@ const DEFAULT_RESOLVER = (
   return res(ctx.status(501, 'Butler: Mock Not Yet Implemented'))
 }
 
+export interface UpdateValues {
+  method: RESTMethods
+  url: string
+  enabled: boolean
+}
+
 export interface Request extends MockedRequest {
   mocked: boolean
 }
@@ -24,24 +31,23 @@ export default class Handler {
   wrapper: RequestHandler | null
   requests: Request[]
 
-  constructor(
-    private onChange: () => void,
-    private _method: RESTMethods,
-    private _url: string
-  ) {
+  public readonly id: string
+
+  constructor(public method: RESTMethods, public url: string) {
     this.requests = []
+    this.id = uuid()
+    this.wrapper = null
   }
 
   get isActive() {
     return !!this.wrapper
   }
 
-  get url() {
-    return this._url
-  }
-
-  get method() {
-    return this._method
+  asRequestHandler(): RequestHandler {
+    if (!this.wrapper) {
+      throw new Error()
+    }
+    return this.wrapper
   }
 
   enable(resolver?: ResponseResolver) {
@@ -49,12 +55,11 @@ export default class Handler {
       return
     }
 
-    this.wrapper = findResolver(this._method)(
-      this._url,
-      resolver || DEFAULT_RESOLVER
+    const resolverFactory = findResolver(this.method)(
+      this.url,
+      DEFAULT_RESOLVER
     )
-
-    this.onChange()
+    this.wrapper = (resolverFactory as unknown) as RequestHandler
   }
 
   disable() {
@@ -63,7 +68,17 @@ export default class Handler {
     }
 
     this.wrapper = null
-    this.onChange()
+  }
+
+  equals(other: Handler) {
+    return other.method === this.method && other.url === this.url
+  }
+
+  update(values: UpdateValues) {
+    this.method = values.method
+    this.url = values.url
+
+    values.enabled ? this.enable() : this.disable()
   }
 
   onRequestReceived(request: Request) {
@@ -75,6 +90,6 @@ export default class Handler {
   }
 
   private canHandle(req: MockedRequest): boolean {
-    return this._method.toString() === req.method && this._url === req.url.href
+    return this.method.toString() === req.method && this.url === req.url.href
   }
 }

@@ -3,13 +3,7 @@ import setupWorker, { subscribe, Worker, Handler } from '@butler/core'
 
 export const worker: Worker = setupWorker()
 
-export interface ServiceWorker {
-  handlers: Handler[]
-  enableHandler: (handler: Handler) => void
-  disableHandler: (handler: Handler) => void
-}
-
-export default function useServiceWorker(): ServiceWorker {
+export default function useServiceWorker(): Handler[] {
   const [handlers, setHandlers] = useState<Handler[]>([])
 
   useEffect(() => {
@@ -18,9 +12,5 @@ export default function useServiceWorker(): ServiceWorker {
     return worker.stop
   }, [])
 
-  return {
-    handlers,
-    enableHandler: worker.enable,
-    disableHandler: worker.disable
-  }
+  return handlers
 }

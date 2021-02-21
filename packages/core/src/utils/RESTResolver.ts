@@ -1,6 +1,6 @@
 import { rest, RESTMethods } from 'msw'
 
-export function findResolver(method: RESTMethods) {
+export function findRequestHandlerFactory(method: RESTMethods) {
   switch (method) {
     case RESTMethods.DELETE:
       return rest.delete

@@ -5,10 +5,10 @@ import HandlerDetail from './components/Handler/Detail'
 
 // @ts-ignore
 import styles from './styles.module.scss'
-import { Handler } from '@butler/core'
+import { Handler, enable, disable } from '@butler/core'
 
 export const Butler = () => {
-  const { handlers, enableHandler, disableHandler } = useServiceWorker()
+  const handlers = useServiceWorker()
   const [selectedHandler, setSelectedHandler] = useState<Handler | null>(null)
 
   return (
@@ -17,8 +17,8 @@ export const Butler = () => {
         handlers={handlers}
         selectedHandler={selectedHandler}
         onSelectHandler={setSelectedHandler}
-        onEnableChange={(handler: Handler, enable: boolean) =>
-          enable ? enableHandler(handler) : disableHandler(handler)
+        onEnableChange={(handler: Handler, checked: boolean) =>
+          checked ? enable(handler) : disable(handler)
         }
       />
       {selectedHandler && (

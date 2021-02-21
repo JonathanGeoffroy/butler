@@ -8,9 +8,9 @@ import {
   RequestHandlersList,
   StartOptions
 } from 'msw/lib/types/setupWorker/glossary'
-import { notify } from './Dispatcher'
 import Handler from './Handler'
-import { handleRequest, handlers } from './Manager'
+import { handleRequest, handleResponse } from './Manager'
+import { subscribe } from './Dispatcher'
 
 export interface Request extends MockedRequest {
   mocked: boolean
@@ -19,9 +19,19 @@ export interface Request extends MockedRequest {
 export interface Worker {
   worker: SetupWorkerApi
   start: (options?: StartOptions) => void
-  enable: (handler: Handler, resolver?: ResponseResolver) => void
-  disable: (handler: Handler) => void
   stop: () => void
+}
+
+async function handleWorkerResponse(response: Response, requestId: string) {
+  const body = await response.json()
+
+  handleResponse(
+    {
+      statusCode: response.status,
+      body
+    },
+    requestId
+  )
 }
 
 export default function setupWorker(
@@ -37,19 +47,12 @@ export default function setupWorker(
     handleRequest({ ...req, mocked: false })
   )
 
-  function enable(handler: Handler, resolver?: ResponseResolver) {
-    handler.enable(resolver) // FIXME call Manager instead ? (update notification)
-    resetHandlers()
-    notify(handlers)
-  }
+  worker.on('response:mocked', handleWorkerResponse)
+  worker.on('response:bypass', handleWorkerResponse)
 
-  function disable(handler: Handler) {
-    handler.disable() // FIXME call Manager instead ? (update notification)
-    resetHandlers()
-    notify(handlers)
-  }
+  subscribe(resetHandlers)
 
-  function resetHandlers() {
+  function resetHandlers(handlers: Handler[]) {
     worker.resetHandlers(
       ...handlers
         .filter((item) => item.isActive)
@@ -60,8 +63,6 @@ export default function setupWorker(
   return {
     start: () => worker.start(),
     stop: () => worker.stop(),
-    enable,
-    disable,
     worker
   }
 }

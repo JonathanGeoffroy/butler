@@ -4,68 +4,79 @@
 }
 
 .handlerList {
-  $color: rgba(white, 0.9);
-  $background: rgb(40, 40, 40);
-
-  border-collapse: collapse;
+  overflow: scroll;
+  width: 100%;
   flex-shrink: 1;
-  color: $color;
-  background: $background;
 
-  td,
-  th {
-    border: 1px solid darken($background, 10);
-    padding: 0.5em 1em;
-    text-align: left;
-  }
+  > table {
+    $color: rgba(white, 0.9);
+    $background: rgb(40, 40, 40);
 
-  tbody {
-    tr:nth-child(2n + 1) {
-      background-color: lighten($color: $background, $amount: 10);
+    border-collapse: collapse;
+
+    color: $color;
+    background: $background;
+
+    td,
+    th {
+      border: 1px solid darken($background, 10);
+      padding: 0.5em 1em;
+      text-align: left;
     }
 
-    tr.selected {
-      background-color: #5800b0;
-      .url {
-        font-weight: bold;
+    thead {
+      background: black;
+      position: sticky;
+      top: 0;
+    }
+    tbody {
+      tr:nth-child(2n + 1) {
+        background-color: lighten($color: $background, $amount: 10);
+      }
+
+      tr.selected {
+        background-color: #225999;
+        .url {
+          font-weight: bold;
+        }
       }
     }
-  }
 
-  .url {
-    width: 100%;
-  }
+    .url {
+      width: 100%;
+    }
 
-  .method {
-    border-radius: 4px;
-    border: 1px solid;
-    width: 5em;
-    display: inline-block;
+    .method {
+      border-radius: 4px;
+      border: 1px solid;
+      width: 5em;
+      display: inline-block;
 
-    &.delete {
-      @include box(#c41e3a);
+      &.delete {
+        @include box(#c41e3a);
+      }
+      &.get {
+        @include box(#2243b6);
+      }
+      &.head {
+        @include box(#733380);
+      }
+      &.post {
+        @include box(#177245);
+      }
+      &.put {
+        @include box(#e16100);
+      }
+      &.patch {
+        @include box(#823);
+      }
+      &.options {
+        @include box(#6a6060);
+      }
     }
-    &.get {
-      @include box(#2243b6);
-    }
-    &.head {
-      @include box(#733380);
-    }
-    &.post {
-      @include box(#177245);
-    }
-    &.put {
-      @include box(#e16100);
-    }
-    &.patch {
-      @include box(#823);
-    }
-    &.options {
-      @include box(#6a6060);
-    }
-  }
 
-  .centered {
-    text-align: center;
+    .centered {
+      text-align: center;
+    }
   }
 }

@@ -39,39 +39,41 @@ export default function List({
   onEnableChange
 }: Props) {
   return (
-    <table className={styles.handlerList}>
-      <thead>
-        <tr>
-          <th>Enabled?</th>
-          <th>Method</th>
-          <th>Url</th>
-          <th>#calls</th>
-        </tr>
-      </thead>
-      <tbody>
-        {handlers.map((handler) => (
-          <tr
-            key={handler.url}
-            className={handler === selectedHandler ? styles.selected : ''}
-            onClick={() => onSelectHandler(handler)}
-          >
-            <td className={styles.centered}>
-              <input
-                type='checkbox'
-                checked={handler.isActive}
-                onChange={() => onEnableChange(handler, !handler.isActive)}
-              />
-            </td>
-            <td className={styles.centered}>
-              <span className={`${styles.method} ${toStyle(handler.method)}`}>
-                {handler.method}
-              </span>
-            </td>
-            <td className={styles.url}>{handler.url}</td>
-            <td>{handler.requests.length}</td>
+    <div className={styles.handlerList}>
+      <table>
+        <thead>
+          <tr>
+            <th>Enabled?</th>
+            <th>Method</th>
+            <th>Url</th>
+            <th>#calls</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {handlers.map((handler) => (
+            <tr
+              key={handler.url}
+              className={handler === selectedHandler ? styles.selected : ''}
+              onClick={() => onSelectHandler(handler)}
+            >
+              <td className={styles.centered}>
+                <input
+                  type='checkbox'
+                  checked={handler.isActive}
+                  onChange={() => onEnableChange(handler, !handler.isActive)}
+                />
+              </td>
+              <td className={styles.centered}>
+                <span className={`${styles.method} ${toStyle(handler.method)}`}>
+                  {handler.method}
+                </span>
+              </td>
+              <td className={styles.url}>{handler.url}</td>
+              <td>{handler.requests.length}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   )
 }

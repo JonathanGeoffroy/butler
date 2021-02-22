@@ -1,18 +1,19 @@
 .handlerDetail {
   min-width: 400px;
+  height: 100%;
   flex-grow: 2;
   flex-shrink: 0;
-  padding: 1em;
 
   form {
     color: white;
 
-    > * {
-      display: flex;
-      flex-direction: row;
+    .row:not(:last-child) {
       margin-bottom: 1em;
+    }
 
-      > label {
+    .horizontal {
+      display: flex;
+      label {
         min-width: 80px;
         flex-shrink: 0;
       }

@@ -1,17 +1,40 @@
 import React, { useEffect, useState } from 'react'
 import { RESTMethods } from 'msw'
 import classnames from 'classnames'
-import { Handler, update, UpdateHandlerDTO } from '@butler/core'
+import { anotherExists, Handler, update, UpdateHandlerDTO } from '@butler/core'
 import Tabs, { Tab } from '../../lib/Tabs'
+import Input from '../../lib/Input'
+import isValidHttpUrl from '../../validators/httpUrl'
+import isValidJSON from '../../validators/json'
 
 // @ts-ignore
 import styles from './Detail.scss'
+import Textarea from '../../lib/Textarea'
 
 interface Props {
   handler: Handler
   onClose: () => void
 }
 
+interface Errors {
+  url?: string
+  statusCode?: string
+  body?: string
+  anotherExists?: string
+}
+const checkForm = (form: UpdateHandlerDTO): Errors => {
+  return {
+    url: !isValidHttpUrl(form.url) ? 'Please enter a valid URL' : undefined,
+    statusCode:
+      form.statusCode <= 0 ? 'Please enter a valid status code' : undefined,
+    body: !isValidJSON(form.body) ? 'Please enter a valid JSON' : undefined,
+    anotherExists: anotherExists(
+      Object.assign({}, new Handler(form.method, form.url), form)
+    )
+      ? 'Another handler for this request already exists'
+      : undefined
+  }
+}
 const toForm = (handler: Handler): UpdateHandlerDTO => {
   return {
     id: handler.id,
@@ -31,16 +54,26 @@ enum TABS {
 export default function Detail({ handler, onClose }: Props) {
   const [tab, setTab] = useState<TABS>(TABS.REQUEST)
   const [form, setForm] = useState<UpdateHandlerDTO>(() => toForm(handler))
+  const [errors, setErrors] = useState<Errors>({})
 
   useEffect(() => {
-    setForm(toForm(handler))
+    if (!Object.values(errors).find((v) => !!v)) {
+      setForm(toForm(handler))
+    }
   }, [handler])
 
+  useEffect(() => {
+    setErrors(checkForm(form))
+  }, [form])
+
   const onSubmit = () => {
-    update({
-      ...form,
-      body: JSON.parse(form.body)
-    })
+    debugger
+    if (!Object.values(errors).find((v) => !!v)) {
+      update({
+        ...form,
+        body: JSON.parse(form.body)
+      })
+    }
   }
 
   const onHandleChange = (property: keyof UpdateHandlerDTO) => (value: any) => {
@@ -81,32 +114,32 @@ export default function Detail({ handler, onClose }: Props) {
 
             <div className={classnames(styles.row, styles.horizontal)}>
               <label>Url</label>
-              <input
+              <Input
                 type='text'
                 value={form.url}
-                onChange={(e) => onHandleChange('url')(e.currentTarget.value)}
+                onValueChange={onHandleChange('url')}
+                error={errors.url || errors.anotherExists}
               />
             </div>
           </Tab>
           <Tab label='Response' value={TABS.RESPONSE}>
             <div className={classnames(styles.row, styles.horizontal)}>
               <label>Status</label>
-              <input
+              <Input
                 type='number'
                 value={form.statusCode}
-                onChange={(e) =>
-                  onHandleChange('statusCode')(e.currentTarget.value)
-                }
+                onValueChange={onHandleChange('statusCode')}
               />
             </div>
 
             <div className={styles.row}>
               <label>Response</label>
-              <textarea
+              <Textarea
                 style={{ width: '100%' }}
                 rows={8}
                 value={form.body}
-                onChange={(e) => onHandleChange('body')(e.currentTarget.value)}
+                onValueChange={onHandleChange('body')}
+                error={errors.body}
               />
             </div>
           </Tab>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import useServiceWorker from './hooks/useServiceWorker'
 import HandlerList from './components/Handler/List'
-import HandlerDetail from './components/Handler/Detail'
+import HandlerDetail from './components/Handler/Details'
 
 // @ts-ignore
 import styles from './styles.module.scss'

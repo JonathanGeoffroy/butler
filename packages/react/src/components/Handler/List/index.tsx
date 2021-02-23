@@ -3,7 +3,7 @@ import { RESTMethods } from 'msw'
 import { Handler } from '@butler/core'
 
 // @ts-ignore
-import styles from './List.scss'
+import styles from './index.scss'
 
 function toStyle(method: RESTMethods) {
   switch (method) {

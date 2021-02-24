@@ -1,0 +1,15 @@
+.headerForm {
+  .header {
+    width: 100%;
+    display: flex;
+    margin-bottom: 0.5em;
+
+    > *:not(:last-child) {
+      margin-right: 0.5em;
+    }
+
+    > input {
+      width: 100%;
+    }
+  }
+}

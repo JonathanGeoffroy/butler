@@ -1,0 +1,25 @@
+.button {
+  padding: 0.5em 1em;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #424242;
+  color: rgba(white, 0.9);
+  border: 1px solid lighten(#424242, 10);
+
+  &.small {
+    padding: 0.25em 0.5em;
+  }
+
+  &.primary {
+    border-color: lighten(#0090ff, 10);
+    background: #0090ff;
+    color: rgba(black, 0.9);
+  }
+
+  &:disabled {
+    border-color: #a9a9a9;
+    background-color: #a9a9a9;
+    color: #424242;
+    cursor: not-allowed;
+  }
+}

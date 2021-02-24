@@ -99,10 +99,7 @@ export function handleResponse(response: MockedResponse, reqId: string) {
 
   request.response = response
   if (!handler.response) {
-    handler.response = {
-      statusCode: response.statusCode,
-      body: response.body
-    }
+    handler.response = { ...response }
   }
 
   notify(handlers)

@@ -1,12 +1,13 @@
 import React from 'react'
-import classnames from 'classnames'
 
 import Input from '../../../lib/Input'
 import Textarea from '../../../lib/Textarea'
+import Accordeon from '../../../lib/Accordeon'
+
+import HeadersForm from './HeadersForm'
 import { FormPartProps } from './types'
 
-// @ts-ignore
-import styles from './index.scss'
+import styles from './index.module.scss'
 
 export default function ResponseForm({
   form,
@@ -14,26 +15,35 @@ export default function ResponseForm({
   errors
 }: FormPartProps) {
   return (
-    <div>
-      <div className={classnames(styles.row, styles.horizontal)}>
-        <label>Status</label>
-        <Input
-          type='number'
-          value={form.statusCode}
-          onValueChange={onValueChange('statusCode')}
+    <div className={styles.responseForm}>
+      <Accordeon label='Headers'>
+        <HeadersForm
+          headers={form.headers || {}}
+          onChange={onValueChange('headers')}
         />
-      </div>
+      </Accordeon>
 
-      <div className={styles.row}>
-        <label>Response</label>
-        <Textarea
-          style={{ width: '100%' }}
-          rows={8}
-          value={form.body}
-          onValueChange={onValueChange('body')}
-          error={errors.body}
-        />
-      </div>
+      <Accordeon label='Body'>
+        <div className={styles.horizontal}>
+          <label>Status</label>
+          <Input
+            type='number'
+            value={form.statusCode}
+            onValueChange={onValueChange('statusCode')}
+          />
+        </div>
+
+        <div>
+          <label>Response</label>
+          <Textarea
+            style={{ width: '100%' }}
+            rows={8}
+            value={form.body}
+            onValueChange={onValueChange('body')}
+            error={errors.body}
+          />
+        </div>
+      </Accordeon>
     </div>
   )
 }

@@ -1,0 +1,28 @@
+.tabs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  .tabsHeader {
+    display: flex;
+    justify-content: space-between;
+
+    background-color: black;
+    border-bottom: 1px solid #424242;
+
+    .tabsItems {
+      display: flex;
+    }
+
+    .tabsRight {
+      margin-left: 1em;
+      flex-shrink: 0;
+      align-self: center;
+    }
+  }
+
+  .selectedContent {
+    overflow-y: auto;
+    height: 100%;
+  }
+}

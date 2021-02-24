@@ -1,8 +1,7 @@
 import React, { ReactNode } from 'react'
 import classnames from 'classnames'
 
-// @ts-ignore
-import styles from './Tab.scss'
+import styles from './Tab.module.scss'
 
 export interface Valuable<V> {
   value: V

@@ -10,6 +10,6 @@ export {
   UpdateHandlerDTO
 } from './Manager'
 export { subscribe } from './Dispatcher'
-import Handler from './Handler'
+import Handler, { Headers } from './Handler'
 export default setupWorker
-export { Worker, Handler }
+export { Worker, Handler, Headers }

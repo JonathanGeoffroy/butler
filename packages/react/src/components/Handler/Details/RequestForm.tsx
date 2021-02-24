@@ -1,11 +1,10 @@
 import { RESTMethods } from 'msw'
 import React from 'react'
-import classnames from 'classnames'
-import Input from '../../../lib/Input'
 import { FormPartProps } from './types'
+import Input from '../../../lib/Input'
+import Panel from '../../../lib/Panel'
 
-// @ts-ignore
-import styles from './index.scss'
+import styles from './index.module.scss'
 
 export default function RequestForm({
   form,
@@ -13,8 +12,8 @@ export default function RequestForm({
   errors
 }: FormPartProps) {
   return (
-    <div>
-      <div className={classnames(styles.row, styles.horizontal)}>
+    <Panel kind='vertical'>
+      <div className={styles.horizontal}>
         <label>Enabled</label>
         <input
           type='checkbox'
@@ -22,7 +21,7 @@ export default function RequestForm({
           onChange={() => onValueChange('enabled')(!form.enabled)}
         />
       </div>
-      <div className={classnames(styles.row, styles.horizontal)}>
+      <div className={styles.horizontal}>
         <label>Method</label>
         <select
           value={form.method}
@@ -36,7 +35,7 @@ export default function RequestForm({
         </select>
       </div>
 
-      <div className={classnames(styles.row, styles.horizontal)}>
+      <div className={styles.horizontal}>
         <label>Url</label>
         <Input
           type='text'
@@ -45,6 +44,6 @@ export default function RequestForm({
           error={errors.url || errors.anotherExists}
         />
       </div>
-    </div>
+    </Panel>
   )
 }

@@ -7,7 +7,6 @@ import {
   RESTMethods
 } from 'msw'
 import { findRequestHandlerFactory } from './utils/RESTResolver'
-import { body } from 'msw/lib/types/context'
 
 const DEFAULT_RESOLVER = (
   _: any,
@@ -23,15 +22,19 @@ export interface UpdateValues {
   enabled: boolean
   statusCode: number
   body: any
+  headers?: Headers
 }
 export interface Request extends MockedRequest {
   mocked: boolean
   response?: MockedResponse
 }
 
+export type Headers = Record<string, string>
+
 export interface MockedResponse {
   statusCode: number
   body: any
+  headers?: Headers
 }
 
 export default class Handler {
@@ -72,11 +75,13 @@ export default class Handler {
   private doEnable() {
     const currentResponse = this.response
     const resolver = currentResponse
-      ? (_: any, res: ResponseComposition<any>, ctx: RestContext) =>
-          res(
+      ? (_: any, res: ResponseComposition<any>, ctx: RestContext) => {
+          return res(
             ctx.status(currentResponse.statusCode),
-            ctx.json(currentResponse.body)
+            ctx.json(currentResponse.body),
+            ctx.set(currentResponse.headers || {})
           )
+        }
       : DEFAULT_RESOLVER
 
     this.wrapper = findRequestHandlerFactory(this.method)(this.url, resolver)
@@ -100,7 +105,8 @@ export default class Handler {
 
     this.response = {
       statusCode: values.statusCode,
-      body: values.body
+      body: values.body,
+      headers: values.headers
     }
 
     values.enabled ? this.doEnable() : this.disable()

@@ -8,7 +8,7 @@ import {
   RequestHandlersList,
   StartOptions
 } from 'msw/lib/types/setupWorker/glossary'
-import Handler from './Handler'
+import Handler, { Headers } from './Handler'
 import { handleRequest, handleResponse } from './Manager'
 import { subscribe } from './Dispatcher'
 
@@ -25,11 +25,18 @@ export interface Worker {
 async function handleWorkerResponse(response: Response, requestId: string) {
   const body = await response.json()
 
+  const headers: Headers = {}
+  response.headers.forEach((value, key) => {
+    headers[key] = value
+  })
+
   handleResponse(
     {
       statusCode: response.status,
-      body
+      body,
+      headers
     },
+
     requestId
   )
 }

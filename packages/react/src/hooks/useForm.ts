@@ -10,6 +10,7 @@ interface Response<V, E> {
   errors: E
   hasErrors: boolean
   onValueChange: (property: keyof V) => (value: any) => void
+  resetForm: (values: V | (() => V)) => void
   onSubmit: () => Promise<any>
 }
 
@@ -48,6 +49,7 @@ export default function useForm<V, E>(
     errors,
     hasErrors,
     onValueChange,
+    resetForm: setValues,
     onSubmit,
     submitting
   }

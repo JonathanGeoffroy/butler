@@ -1,0 +1,15 @@
+.panel {
+  padding: 1em;
+
+  &.vertical {
+    > *:not(:last-child) {
+      margin-bottom: 1em;
+    }
+  }
+
+  &.horizontal {
+    > *:not(:last-child) {
+      margin-right: 1em;
+    }
+  }
+}

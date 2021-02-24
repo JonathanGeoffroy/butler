@@ -1,8 +1,4 @@
-import {
-  MockedRequest,
-  ResponseResolver,
-  setupWorker as setupMswWorker
-} from 'msw'
+import { MockedRequest, setupWorker as setupMswWorker } from 'msw'
 import { SetupWorkerApi } from 'msw'
 import {
   RequestHandlersList,
@@ -57,15 +53,13 @@ export default function setupWorker(
   worker.on('response:mocked', handleWorkerResponse)
   worker.on('response:bypass', handleWorkerResponse)
 
-  subscribe(resetHandlers)
-
-  function resetHandlers(handlers: Handler[]) {
+  subscribe((handlers: Handler[]) => {
     worker.resetHandlers(
       ...handlers
         .filter((item) => item.isActive)
         .map((item) => item.asRequestHandler())
     )
-  }
+  })
 
   return {
     start: () => worker.start(),

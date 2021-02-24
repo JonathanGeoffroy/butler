@@ -42,6 +42,7 @@ export function update(values: UpdateHandlerDTO) {
 export function remove(id: string) {
   const index = findIndexById(id)
   if (index >= 0) {
+    handlers[index].disable()
     handlers.splice(index, 1)
     notify(handlers)
   }
@@ -106,5 +107,7 @@ export function handleResponse(response: MockedResponse, reqId: string) {
 }
 
 function findIndexById(id: string) {
-  return handlers.findIndex((item) => item.id === id)
+  return handlers.findIndex((item) => {
+    return item.id === id
+  })
 }

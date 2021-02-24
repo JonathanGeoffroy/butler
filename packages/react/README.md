@@ -15,12 +15,12 @@ npm install --save @butler/react
 ```tsx
 import React, { Component } from 'react'
 
-import MyComponent from '@butler/react'
+import Butler from '@butler/react'
 import '@butler/react/dist/index.css'
 
 class Example extends Component {
   render() {
-    return <MyComponent />
+    return <Butler />
   }
 }
 ```

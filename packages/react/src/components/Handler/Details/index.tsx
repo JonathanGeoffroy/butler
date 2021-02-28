@@ -55,6 +55,7 @@ const submit = (form: HandlerForm) => {
   return Promise.resolve(
     update({
       ...form,
+      statusCode: parseInt(form.statusCode.toString()),
       headers: form.headers.reduce((acc, header) => {
         if (header.name.trim().length > 0) {
           acc[header.name] = header.value

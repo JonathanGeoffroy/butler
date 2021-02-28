@@ -7,9 +7,12 @@ export default function useServiceWorker(): Handler[] {
   const [handlers, setHandlers] = useState<Handler[]>([])
 
   useEffect(() => {
-    subscribe((handlers) => setHandlers([...handlers]))
+    const unsubscribe = subscribe((handlers) => setHandlers([...handlers]))
     worker.start()
-    return worker.stop
+    return () => {
+      unsubscribe()
+      worker.stop()
+    }
   }, [])
 
   return handlers

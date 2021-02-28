@@ -16,6 +16,7 @@ export default function RequestForm({
       <div className={styles.horizontal}>
         <label>Enabled</label>
         <input
+          aria-label='Enabled'
           type='checkbox'
           checked={form.enabled}
           onChange={() => onValueChange('enabled')(!form.enabled)}
@@ -24,6 +25,7 @@ export default function RequestForm({
       <div className={styles.horizontal}>
         <label>Method</label>
         <select
+          aria-label='Method'
           value={form.method}
           onChange={(e) => onValueChange('method')(e.currentTarget.value)}
         >
@@ -39,6 +41,7 @@ export default function RequestForm({
         <label>Url</label>
         <Input
           type='text'
+          aria-label='url'
           value={form.url}
           onValueChange={onValueChange('url')}
           error={errors.url || errors.anotherExists}

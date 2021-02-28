@@ -27,15 +27,18 @@ export default function ResponseForm({
         <div className={styles.horizontal}>
           <label>Status</label>
           <Input
+            aria-label='Status'
             type='number'
             value={form.statusCode}
             onValueChange={onValueChange('statusCode')}
+            error={errors.statusCode}
           />
         </div>
 
         <div>
           <label>Response</label>
           <Textarea
+            aria-label='Response Body'
             style={{ width: '100%' }}
             rows={8}
             value={form.body}

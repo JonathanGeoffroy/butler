@@ -31,7 +31,7 @@ export default function ResponseForm({
             type='number'
             value={form.statusCode}
             onValueChange={onValueChange('statusCode')}
-            error={errors.statusCode}
+            error={errors?.statusCode}
           />
         </div>
 
@@ -43,7 +43,7 @@ export default function ResponseForm({
             rows={8}
             value={form.body}
             onValueChange={onValueChange('body')}
-            error={errors.body}
+            error={errors?.body}
           />
         </div>
       </Accordeon>

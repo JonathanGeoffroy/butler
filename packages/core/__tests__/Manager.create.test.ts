@@ -1,8 +1,9 @@
 import { RESTMethods } from 'msw'
-import { Handler, subscribe } from '../src'
-import { AnotherExistsHandlerError } from '../src/errors/AnotherExistsHandlerError'
+import { Handler, HandlerDTO, subscribe } from '../src'
+import { InvalidDTOError } from '../src/errors/InvalidDTOError'
 import { MockedResponse } from '../src/Handler'
 import { handlers, create } from '../src/Manager'
+import { testUpdates } from './utils/testUpdates'
 
 describe('create', () => {
   beforeEach(() => {
@@ -16,14 +17,21 @@ describe('create', () => {
     const subscriber = jest.fn()
     subscribe(subscriber)
 
-    const handler = new Handler(RESTMethods.GET, 'http://test.com')
-    create(handler)
+    const dto: HandlerDTO = {
+      enabled: false,
+      method: RESTMethods.GET,
+      url: 'http://test.com',
+      body: '{"some": "body"}',
+      statusCode: 201
+    }
+
+    const handler = create(dto)
 
     expect(handlers).toHaveLength(1)
 
     const actual = handlers[0]
-    expect(actual).toEqual({ ...handler })
-    expect(actual.response).toBeUndefined()
+    testUpdates(dto, actual)
+    expect(actual.requests).toStrictEqual([])
     expect(actual.isActive).toBeFalsy()
 
     expect(subscriber).toHaveBeenCalledTimes(1)
@@ -32,56 +40,78 @@ describe('create', () => {
 
   it('adds second handler (differs by URL)', () => {
     expect(handlers).toHaveLength(0)
-    const first = create(new Handler(RESTMethods.GET, 'http://test.com'))
+    const firstHandler = new Handler(RESTMethods.GET, 'http://test.com')
+    handlers.push(firstHandler)
 
     const subscriber = jest.fn()
     subscribe(subscriber)
 
-    const response: MockedResponse = {
-      body: { mocked: true },
+    const dto: HandlerDTO = {
+      enabled: false,
+      method: RESTMethods.GET,
+      url: 'http://second.com',
+      body: '{ "mocked": true }',
       statusCode: 201
     }
-
-    const second = create(
-      new Handler(RESTMethods.GET, 'http://second.com', response)
-    )
-
+    const secondHandler = create(dto)
     const actual = handlers[1]
-    expect(actual).toStrictEqual(second)
-    expect(actual.isActive).toBeFalsy()
+    testUpdates(dto, actual)
 
     expect(subscriber).toHaveBeenCalledTimes(1)
-    expect(subscriber).toHaveBeenCalledWith([first, second])
+    expect(subscriber).toHaveBeenCalledWith([firstHandler, secondHandler])
   })
 
   it('adds second handler (differs by Method)', () => {
-    const first = create(new Handler(RESTMethods.GET, 'http://test.com'))
-
+    const firstHandler = new Handler(RESTMethods.GET, 'http://test.com')
+    handlers.push(firstHandler)
     const subscriber = jest.fn()
     subscribe(subscriber)
 
-    const second = create(new Handler(RESTMethods.POST, 'http://test.com'))
+    const dto: HandlerDTO = {
+      enabled: false,
+      method: RESTMethods.POST,
+      url: 'http://test.com',
+      body: '{ "mocked": true }',
+      statusCode: 201,
+      headers: { some: 'headers' }
+    }
+    const secondHandler = create(dto)
 
     const actual = handlers[1]
-    expect(actual).toStrictEqual(second)
-    expect(actual.isActive).toBeFalsy()
-
+    testUpdates(dto, actual)
     expect(subscriber).toHaveBeenCalledTimes(1)
-    expect(subscriber).toHaveBeenCalledWith([first, second])
+    expect(subscriber).toHaveBeenCalledWith([firstHandler, secondHandler])
+  })
+
+  it('enables created handler', () => {
+    const dto: HandlerDTO = {
+      enabled: true,
+      method: RESTMethods.GET,
+      url: 'http://test.com',
+      body: '{ "mocked": true }',
+      statusCode: 201
+    }
+
+    const handler = create(dto)
+    testUpdates(dto, handler)
   })
 
   it('refuses to add the same handler twice', () => {
-    create(new Handler(RESTMethods.GET, 'http://test.com'))
+    handlers.push(new Handler(RESTMethods.GET, 'http://test.com'))
 
     const subscriber = jest.fn()
     subscribe(subscriber)
 
-    expect(() =>
-      create(new Handler(RESTMethods.GET, 'http://test.com'))
-    ).toThrow(AnotherExistsHandlerError)
+    const dto: HandlerDTO = {
+      enabled: false,
+      method: RESTMethods.GET,
+      url: 'http://test.com',
+      body: '{ "mocked": true }',
+      statusCode: 201
+    }
 
+    expect(() => create(dto)).toThrow(InvalidDTOError)
     expect(handlers).toHaveLength(1)
-
     expect(subscriber).not.toHaveBeenCalled()
   })
 })

@@ -1,12 +1,16 @@
 import React, { FormEvent, useEffect, useState } from 'react'
 import { v4 as uuid } from 'uuid'
-import { anotherExists, Handler, update } from '@butler/core'
+import {
+  Errors,
+  Handler,
+  update,
+  UpdateHandlerDTO,
+  validate
+} from '@butler/core'
 import Tabs, { Tab } from '../../../lib/Tabs'
 import Button from '../../../lib/Button'
-import isValidHttpUrl from '../../../validators/httpUrl'
-import isValidJSON from '../../../validators/json'
 import useForm from '../../../hooks/useForm'
-import { Errors, HandlerForm } from './types'
+import { HandlerForm } from './types'
 import RequestForm from './RequestForm'
 import ResponseForm from './ResponseForm'
 
@@ -15,20 +19,6 @@ import styles from './index.module.scss'
 export interface Props {
   handler: Handler
   onClose: () => void
-}
-
-const checkForm = (form: HandlerForm): Errors => {
-  return {
-    url: !isValidHttpUrl(form.url) ? 'Please enter a valid URL' : undefined,
-    statusCode:
-      form.statusCode <= 0 ? 'Please enter a valid status code' : undefined,
-    body: !isValidJSON(form.body) ? 'Please enter a valid JSON' : undefined,
-    anotherExists: anotherExists(
-      Object.assign({}, new Handler(form.method, form.url), form)
-    )
-      ? 'Another handler for this request already exists'
-      : undefined
-  }
 }
 
 const toForm = (handler: Handler): HandlerForm => {
@@ -73,6 +63,21 @@ enum TABS {
   RESPONSE
 }
 
+const checkForm = (form: HandlerForm): Errors | null => {
+  const value: UpdateHandlerDTO = {
+    ...form,
+    statusCode: parseInt(form.statusCode.toString()),
+    headers: form.headers.reduce((acc, header) => {
+      if (header.name.trim().length > 0) {
+        acc[header.name] = header.value
+      }
+
+      return acc
+    }, {})
+  }
+
+  return validate(value)
+}
 export default function Detail({ handler, onClose }: Props) {
   const [tab, setTab] = useState<TABS>(TABS.REQUEST)
   const {

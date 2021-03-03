@@ -1,11 +1,5 @@
+import { Errors } from '@butler/core'
 import { RESTMethods } from 'msw'
-
-export interface Errors {
-  url?: string
-  statusCode?: string
-  body?: string
-  anotherExists?: string
-}
 
 export interface Header {
   key: string
@@ -25,5 +19,5 @@ export interface HandlerForm {
 export interface FormPartProps {
   form: HandlerForm
   onValueChange: (property: keyof HandlerForm) => (value: any) => void
-  errors: Errors
+  errors: Errors | null
 }

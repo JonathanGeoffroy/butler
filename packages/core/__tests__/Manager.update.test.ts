@@ -1,7 +1,8 @@
 import { RESTMethods } from 'msw'
 import { Handler, subscribe } from '../src'
-import { AnotherExistsHandlerError } from '../src/errors/AnotherExistsHandlerError'
-import { handlers, UpdateHandlerDTO, update } from '../src/Manager'
+import { handlers, UpdateHandlerDTO, update } from '../src'
+import { InvalidDTOError } from '../src/errors/InvalidDTOError'
+import { testUpdates } from './utils/testUpdates'
 
 describe('update', () => {
   beforeEach(() => {
@@ -21,9 +22,7 @@ describe('update', () => {
     const updates: UpdateHandlerDTO = {
       url: 'http://update.com',
       method: RESTMethods.POST,
-      body: {
-        mocked: 'yeah'
-      },
+      body: '{"mocked": "yeah"}',
       enabled: true,
       id: created.id,
       statusCode: 201,
@@ -55,9 +54,7 @@ describe('update', () => {
       id: second.id,
       url: 'http://update.com',
       method: RESTMethods.POST,
-      body: {
-        mocked: 'yeah'
-      },
+      body: '{"mocked": "yeah"}',
       enabled: true,
       statusCode: 404,
       headers: {
@@ -83,7 +80,7 @@ describe('update', () => {
     const updates: UpdateHandlerDTO = {
       url: 'http://update.com',
       method: RESTMethods.POST,
-      body: {},
+      body: '{}',
       enabled: true,
       id: 'unknown-id',
       statusCode: 201
@@ -108,7 +105,7 @@ describe('update', () => {
       id: handler.id,
       url: 'http://already-exists.com',
       method: RESTMethods.PUT,
-      body: {},
+      body: '{}',
       enabled: false,
       statusCode: 201
     }
@@ -139,20 +136,9 @@ describe('update', () => {
       statusCode: 201
     }
 
-    expect(() => update(updates)).toThrowError(AnotherExistsHandlerError)
+    expect(() => update(updates)).toThrowError(InvalidDTOError)
     expect(handlers).toStrictEqual([first, second])
 
     expect(subscriber).not.toHaveBeenCalled()
   })
 })
-
-function testUpdates(updates: UpdateHandlerDTO, handler: Handler) {
-  expect(handler.url).toStrictEqual(updates.url)
-  expect(handler.method).toStrictEqual(updates.method)
-  expect(handler.response).toStrictEqual({
-    body: updates.body,
-    statusCode: updates.statusCode,
-    headers: updates.headers
-  })
-  expect(handler.isActive).toBe(!!updates.enabled)
-}

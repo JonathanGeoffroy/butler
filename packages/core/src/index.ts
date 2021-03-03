@@ -6,10 +6,11 @@ export {
   handlers,
   anotherExists,
   enable,
-  disable,
-  UpdateHandlerDTO
+  disable
 } from './Manager'
 export { subscribe } from './Dispatcher'
 import Handler, { Headers } from './Handler'
+export { validate, Errors, HandlerDTO, UpdateHandlerDTO } from './DTO'
+
 export default setupWorker
 export { Worker, Handler, Headers }

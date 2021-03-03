@@ -1,38 +1,36 @@
 import { RESTMethods } from 'msw'
 import { notify } from './Dispatcher'
-import { AnotherExistsHandlerError } from './errors/AnotherExistsHandlerError'
-import Handler, { MockedResponse, Request, UpdateValues } from './Handler'
+import Handler, { MockedResponse, Request } from './Handler'
+import { HandlerDTO, UpdateHandlerDTO, validate, validateOrThrow } from './DTO'
 
 export const handlers: Handler[] = []
 
-export interface UpdateHandlerDTO extends UpdateValues {
-  id: string
-}
+export function create(dto: HandlerDTO) {
+  validateOrThrow(dto)
+  const handler = new Handler(
+    dto.method,
+    dto.url,
+    {
+      body: dto.body,
+      statusCode: dto.statusCode,
+      headers: dto.headers
+    },
+    dto.enabled
+  )
 
-export function create(handler: Handler) {
-  if (anotherExists(handler)) {
-    throw new AnotherExistsHandlerError()
-  }
   handlers.push(handler)
   notify(handlers)
+
   return handler
 }
 
-export function update(values: UpdateHandlerDTO) {
-  const index = findIndexById(values.id)
+export function update(dto: UpdateHandlerDTO) {
+  validateOrThrow(dto)
+  const index = findIndexById(dto.id)
 
   if (index >= 0) {
     const handler = handlers[index]
-    const dryHandler = Object.assign({}, handler, {
-      id: values.id,
-      url: values.url,
-      method: values.method
-    })
-    if (anotherExists(dryHandler)) {
-      throw new AnotherExistsHandlerError()
-    }
-
-    handler.update(values)
+    handler.update(dto)
     notify(handlers)
   }
 
@@ -68,14 +66,13 @@ export function handleRequest(request: Request) {
   )
 
   if (!someoneCatch) {
-    const handler = create(
-      new Handler(
-        //@ts-ignore
-        RESTMethods[request.method],
-        request.url.href
-      )
+    const handler = new Handler(
+      // @ts-ignore
+      RESTMethods[request.method],
+      request.url.href
     )
     handler.onRequestReceived(request)
+    handlers.push(handler)
   }
 
   notify(handlers)

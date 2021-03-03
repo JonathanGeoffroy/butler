@@ -7,7 +7,7 @@ type Checker<V, E> = (values: V) => E
 interface Response<V, E> {
   submitting: boolean
   values: V
-  errors: E
+  errors: E | null
   hasErrors: boolean
   onValueChange: (property: keyof V) => (value: any) => void
   resetForm: (values: V | (() => V)) => void
@@ -23,7 +23,7 @@ export default function useForm<V, E>(
   const [errors, setErrors] = useState<E>(() => checker(values))
   const [submitting, setSubmitting] = useState<boolean>(false)
 
-  const hasErrors = !!Object.values(errors).find((v) => !!v)
+  const hasErrors = !!errors
 
   useEffect(() => {
     setErrors(checker(values))

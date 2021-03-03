@@ -7,6 +7,7 @@ import {
   RESTMethods
 } from 'msw'
 import { findRequestHandlerFactory } from './utils/RESTResolver'
+import { HandlerDTO } from './DTO'
 
 const DEFAULT_RESOLVER = (
   _: any,
@@ -16,14 +17,6 @@ const DEFAULT_RESOLVER = (
   return res(ctx.status(501, 'Butler: Mock Not Yet Implemented'))
 }
 
-export interface UpdateValues {
-  method: RESTMethods
-  url: string
-  enabled: boolean
-  statusCode: number
-  body: any
-  headers?: Headers
-}
 export interface Request extends MockedRequest {
   mocked: boolean
   response?: MockedResponse
@@ -46,11 +39,16 @@ export default class Handler {
   constructor(
     public method: RESTMethods,
     public url: string,
-    public response?: MockedResponse
+    public response?: MockedResponse,
+    enabled: boolean = false
   ) {
     this.requests = []
     this.id = uuid()
     this.wrapper = null
+
+    if (enabled) {
+      this.doEnable()
+    }
   }
 
   get isActive() {
@@ -78,7 +76,7 @@ export default class Handler {
       ? (_: any, res: ResponseComposition<any>, ctx: RestContext) => {
           return res(
             ctx.status(currentResponse.statusCode),
-            ctx.json(currentResponse.body),
+            ctx.body(currentResponse.body),
             ctx.set(currentResponse.headers || {})
           )
         }
@@ -99,7 +97,7 @@ export default class Handler {
     return other.method === this.method && other.url === this.url
   }
 
-  update(values: UpdateValues) {
+  update(values: HandlerDTO) {
     this.method = values.method
     this.url = values.url
 

@@ -44,7 +44,7 @@ export default function RequestForm({
           aria-label='url'
           value={form.url}
           onValueChange={onValueChange('url')}
-          error={errors.url || errors.anotherExists}
+          error={errors?.url || errors?.anotherExists}
         />
       </div>
     </Panel>

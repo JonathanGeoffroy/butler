@@ -52,8 +52,7 @@ const submit = (form: HandlerForm) => {
         }
 
         return acc
-      }, {}),
-      body: JSON.parse(form.body)
+      }, {})
     })
   )
 }

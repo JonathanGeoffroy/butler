@@ -1,6 +1,32 @@
-import { rest, RESTMethods } from 'msw'
+import { ParsedRestRequest, rest, RestContext, RESTMethods } from 'msw'
+import { Mask } from 'msw/lib/types/setupWorker/glossary'
+import {
+  DefaultRequestBodyType,
+  MockedRequest,
+  RequestHandler,
+  RequestParams,
+  ResponseResolver
+} from 'msw/lib/types/utils/handlers/requestHandler'
 
-export function findRequestHandlerFactory(method: RESTMethods) {
+type ResponseFactory<T> = (
+  mask: Mask,
+  resolver: ResponseResolver<
+    MockedRequest<DefaultRequestBodyType, RequestParams>,
+    RestContext,
+    T
+  >
+) => RequestHandler<
+  MockedRequest<DefaultRequestBodyType, RequestParams>,
+  RestContext,
+  ParsedRestRequest,
+  MockedRequest<T, RequestParams>,
+  T
+>
+
+export function findRequestHandlerFactory(
+  method: RESTMethods
+): // eslint-disable-next-line
+ResponseFactory<any> {
   switch (method) {
     case RESTMethods.DELETE:
       return rest.delete

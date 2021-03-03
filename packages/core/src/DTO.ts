@@ -4,6 +4,7 @@ import { anotherExists } from './Manager'
 import { InvalidDTOError } from './errors/InvalidDTOError'
 import isValidHttpUrl from './validators/httpUrl'
 import isValidJSON from './validators/json'
+import { ContentType, findContentType } from './utils/headers'
 
 type Headers = Record<string, string>
 export interface HandlerDTO {
@@ -34,8 +35,16 @@ export function validate(dto: HandlerDTO): Errors | null {
     errors.statusCode = 'Please enter a valid status code'
   }
 
-  if (!isValidJSON(dto.body)) {
-    errors.body = 'Please enter a valid JSON'
+  if (dto.headers) {
+    switch (findContentType(dto.headers)) {
+      case ContentType.JSON:
+        if (!isValidJSON(dto.body)) {
+          errors.body = 'Please enter a valid JSON'
+        }
+        break
+      default:
+        break
+    }
   }
 
   if (anotherExists(Object.assign({}, new Handler(dto.method, dto.url), dto)))

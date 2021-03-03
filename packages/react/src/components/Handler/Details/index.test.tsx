@@ -4,15 +4,19 @@ import { fireEvent, render } from '@testing-library/react'
 import { RESTMethods } from 'msw'
 import Form from './index'
 
-function createHandler(): Handler {
+const DEFAULT_HEADERS = {
+  'x-butler-test': 'butler'
+}
+
+function createHandler(
+  headers: Record<string, string> = DEFAULT_HEADERS
+): Handler {
   const handler = new Handler(RESTMethods.DELETE, 'https://www.url.com')
   handler.enable()
   handler.response = {
     body: '{"some": "body"}',
     statusCode: 419,
-    headers: {
-      'x-butler-test': 'butler'
-    }
+    headers
   }
 
   return handler
@@ -45,10 +49,10 @@ test('sends form', () => {
   expect(update).toHaveBeenCalledTimes(1)
   const expected: UpdateHandlerDTO = {
     id: handler.id,
-    body: {
-      another: 'JSON'
+    body: '{"another": "JSON"}',
+    headers: {
+      'x-butler-test': 'butler'
     },
-    headers: { 'x-butler-test': 'butler' },
     enabled: true,
     method: RESTMethods.HEAD,
     statusCode: 201,
@@ -76,10 +80,9 @@ describe('checker', () => {
     expect(screen.getByText(/Update/)).toBeDisabled()
   })
 
-  test('checks body', () => {
-    const screen = render(
-      <Form handler={createHandler()} onClose={jest.fn()} />
-    )
+  test('checks JSON body', () => {
+    const handler = createHandler({ ' CONTENT-TYPE ': 'APPLICATION/JSON ' })
+    const screen = render(<Form handler={handler} onClose={jest.fn()} />)
 
     expect(screen.getByText(/Update/)).toBeEnabled()
 
@@ -93,6 +96,21 @@ describe('checker', () => {
       'title',
       'Please enter a valid JSON'
     )
+  })
+
+  test('checks text body', () => {
+    const handler = createHandler({ 'content-type': 'text/plain' })
+    const screen = render(<Form handler={handler} onClose={jest.fn()} />)
+
+    expect(screen.getByText(/Update/)).toBeEnabled()
+
+    fireEvent.click(screen.getByText('Response'))
+    fireEvent.change(screen.getByLabelText(/Response Body/), {
+      target: { value: 'BadJSON' }
+    })
+
+    expect(screen.getByText(/Update/)).toBeEnabled()
+    expect(screen.getByLabelText(/Response Body/)).not.toHaveAttribute('title')
   })
 
   test('checks status code', () => {

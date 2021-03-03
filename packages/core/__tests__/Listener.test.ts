@@ -70,13 +70,9 @@ it('Listen to bypassed response', async () => {
   expect(handleResponse).toHaveBeenCalledTimes(1)
   expect(handleResponse).toHaveBeenCalledWith(
     {
-      body: {
-        mocked: 'testing'
-      },
+      body,
       statusCode: 201,
-      headers: {
-        some: 'headers'
-      }
+      headers
     },
     requestId
   )
@@ -96,13 +92,9 @@ it('Listen to mocked response', async () => {
   expect(handleResponse).toHaveBeenCalledTimes(1)
   expect(handleResponse).toHaveBeenCalledWith(
     {
-      body: {
-        mocked: 'testing'
-      },
+      body,
       statusCode: 201,
-      headers: {
-        some: 'headers'
-      }
+      headers
     },
     requestId
   )

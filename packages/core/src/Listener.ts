@@ -7,6 +7,7 @@ import {
 import Handler, { Headers } from './Handler'
 import { handleRequest, handleResponse } from './Manager'
 import { subscribe } from './Dispatcher'
+import { ContentType, findContentType } from './utils/headers'
 
 export interface Request extends MockedRequest {
   mocked: boolean
@@ -19,8 +20,7 @@ export interface Worker {
 }
 
 async function handleWorkerResponse(response: Response, requestId: string) {
-  const body = await response.json()
-
+  const body = await response.text()
   const headers: Headers = {}
   response.headers.forEach((value, key) => {
     headers[key] = value

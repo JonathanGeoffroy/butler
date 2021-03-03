@@ -1,4 +1,5 @@
 import { RESTMethods } from 'msw'
+import { isMainThread } from 'worker_threads'
 import { HandlerDTO, validate } from '../src'
 
 it('validates all fields', () => {
@@ -31,7 +32,7 @@ it('find url error', () => {
   })
 })
 
-it('find body error', () => {
+it('accepts any string as body when content-type is not set', () => {
   const dto: HandlerDTO = {
     body: 'non-JSON body',
     enabled: true,
@@ -39,6 +40,37 @@ it('find body error', () => {
     statusCode: 303,
     url: 'https://www/hello-world.com',
     headers: {
+      'x-butler': 'test'
+    }
+  }
+
+  expect(validate(dto)).toBeNull()
+})
+
+it('accepts any string as body when content-type is text', () => {
+  const dto: HandlerDTO = {
+    body: 'non-JSON body',
+    enabled: true,
+    method: RESTMethods.HEAD,
+    statusCode: 303,
+    url: 'https://www/hello-world.com',
+    headers: {
+      'content-type': 'text/plain'
+    }
+  }
+
+  expect(validate(dto)).toBeNull()
+})
+
+it('finds body error when content-type is JSON', () => {
+  const dto: HandlerDTO = {
+    body: 'non-JSON body',
+    enabled: true,
+    method: RESTMethods.HEAD,
+    statusCode: 303,
+    url: 'https://www/hello-world.com',
+    headers: {
+      '  ConTent-Type   ': 'application/json ; charset=utf-8',
       'x-butler': 'test'
     }
   }

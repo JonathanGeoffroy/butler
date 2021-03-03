@@ -51,8 +51,8 @@ export function createResponse(
   headers?: Record<string, string>
 ) {
   return {
-    json: function () {
-      return JSON.parse(body)
+    text: function () {
+      return body
     },
     status,
     headers: {
